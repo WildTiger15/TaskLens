@@ -11,8 +11,11 @@ FRAME_INTERVAL_S = 2      # take one frame every N seconds
 FRAME_WIDTH = 1024        # downscale frames to about this many pixels wide
 
 # Classification
+# Note: these models reject a custom temperature, so we cannot set temperature 0.
+# Reruns are still identical because every response is cached on disk.
+EFFORT = "low"            # model thinking effort; low suits simple labeling
 BATCH_SIZE = 8            # frames per API call
-MAX_WORKERS = 4           # parallel API calls
+MAX_WORKERS = 4           # recordings classified in parallel
 CONFIRM_ABOVE_CALLS = 100 # ask before any run that needs more calls than this
 
 # Segmentation and review
