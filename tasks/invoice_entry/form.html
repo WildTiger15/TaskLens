@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice Entry</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f2f4f7; margin: 0; padding: 40px 16px; }
+  .card { max-width: 460px; margin: 0 auto; background: #fff; border-radius: 8px;
+          padding: 28px 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  h1 { font-size: 22px; margin: 0 0 20px; }
+  label { display: block; font-weight: bold; margin: 16px 0 6px; }
+  input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 9px 10px;
+          border: 1px solid #b8c0cc; border-radius: 4px; }
+  input.bad { border: 2px solid #c62828; background: #fff5f5; }
+  .hint { color: #667; font-size: 13px; margin-top: 4px; }
+  button { margin-top: 24px; width: 100%; font-size: 17px; padding: 11px; border: 0;
+           border-radius: 4px; background: #1f5fbf; color: #fff; cursor: pointer; }
+  .message { margin-top: 20px; padding: 12px 14px; border-radius: 4px; font-size: 15px; display: none; }
+  .message.error { display: block; background: #fde8e8; color: #9b1c1c; border: 1px solid #c62828; }
+  .message.success { display: block; background: #e6f4ea; color: #1e6b33; border: 1px solid #2e7d32; }
+  .count { color: #667; font-size: 13px; margin-top: 14px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Invoice Entry</h1>
+  <form id="invoice-form" autocomplete="off" novalidate>
+    <label for="vendor">Vendor</label>
+    <input id="vendor" name="vendor" type="text">
+
+    <label for="date">Invoice date</label>
+    <input id="date" name="date" type="text" placeholder="YYYY-MM-DD">
+    <div class="hint">Format: YYYY-MM-DD</div>
+
+    <label for="total">Total ($)</label>
+    <input id="total" name="total" type="text" placeholder="0.00">
+
+    <button type="submit">Submit</button>
+  </form>
+  <div id="message" class="message"></div>
+  <div id="count" class="count"></div>
+</div>
+
+<script>
+// Answer key written by generate_invoices.py. Used to check vendor and total.
+let invoices = [];
+let savedCount = 0;
+
+fetch("invoices/invoices.json")
+  .then(response => response.json())
+  .then(data => { invoices = data; })
+  .catch(() => showMessage("error", "Could not load invoices.json. Run generate_invoices.py and serve this folder."));
+
+function showMessage(kind, text) {
+  const box = document.getElementById("message");
+  box.className = "message " + kind;
+  box.textContent = text;
+}
+
+function isValidDate(text) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false;
+  const [year, month, day] = text.split("-").map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day));
+  return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
+}
+
+// Accept "1234.56", "$1,234.56" or "1234.5". Returns cents, or null if not a number.
+function toCents(text) {
+  const cleaned = text.replace(/[$,\s]/g, "");
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  return Math.round(parseFloat(cleaned) * 100);
+}
+
+function normalize(text) {
+  return text.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function checkForm(vendor, date, total) {
+  const errors = [];
+  const invoice = invoices.find(inv => normalize(inv.vendor) === normalize(vendor));
+
+  if (!vendor.trim()) errors.push(["vendor", "Vendor is required."]);
+  else if (!invoice) errors.push(["vendor", "Vendor not found. Check the spelling against the invoice."]);
+
+  if (!isValidDate(date.trim())) errors.push(["date", "Date must be a real date in YYYY-MM-DD format."]);
+  else if (invoice && invoice.date !== date.trim()) errors.push(["date", "Date does not match the invoice."]);
+
+  const cents = toCents(total);
+  if (cents === null) errors.push(["total", "Total must be a number like 1234.56."]);
+  else if (invoice && cents !== Math.round(parseFloat(invoice.total) * 100)) {
+    errors.push(["total", "Total does not match the invoice."]);
+  }
+  return errors;
+}
+
+document.getElementById("invoice-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const fields = ["vendor", "date", "total"];
+  const values = Object.fromEntries(fields.map(id => [id, document.getElementById(id).value]));
+  fields.forEach(id => document.getElementById(id).classList.remove("bad"));
+
+  const errors = checkForm(values.vendor, values.date, values.total);
+  if (errors.length > 0) {
+    errors.forEach(([id]) => document.getElementById(id).classList.add("bad"));
+    showMessage("error", "Error: " + errors.map(([, text]) => text).join(" "));
+    return;
+  }
+
+  savedCount += 1;
+  const dollars = (toCents(values.total) / 100).toFixed(2);
+  showMessage("success", "Saved: " + values.vendor.trim() + ", " + values.date.trim() + ", $" + dollars);
+  document.getElementById("count").textContent = "Invoices saved this session: " + savedCount;
+  event.target.reset();
+});
+</script>
+</body>
+</html>

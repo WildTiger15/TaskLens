@@ -1,0 +1,11 @@
+step,start_s,end_s
+open_invoice,0,4
+read_fields,4,12
+switch_to_form,12,14
+type_vendor,14,22
+type_date,22,28
+type_total,28,33
+submit,33,35
+fix_error,35,42
+submit,42,44
+idle,44,48

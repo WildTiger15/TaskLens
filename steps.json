@@ -1,0 +1,12 @@
+[
+  "open_invoice",
+  "read_fields",
+  "switch_to_form",
+  "type_vendor",
+  "type_date",
+  "type_total",
+  "submit",
+  "fix_error",
+  "idle",
+  "unclear"
+]

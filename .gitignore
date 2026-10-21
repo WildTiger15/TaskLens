@@ -1,0 +1,28 @@
+# Large or private data
+data/recordings/
+data/frames/
+data/cache/
+
+# Generated dummy invoices (rebuild with generate_invoices.py)
+tasks/invoice_entry/invoices/
+
+# Keys and secrets
+.env
+.env.*
+*.key
+*.pem
+secrets*
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+~$*.xlsx
