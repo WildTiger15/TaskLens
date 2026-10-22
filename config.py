@@ -19,6 +19,7 @@ MAX_WORKERS = 4           # recordings classified in parallel
 CONFIRM_ABOVE_CALLS = 100 # ask before any run that needs more calls than this
 
 # Segmentation and review
+SMOOTH_WINDOW = 3         # frames in the majority window that removes single frame flips
 MIN_SEGMENT_S = 2         # merge segments shorter than this into a neighbor
 LOW_CONFIDENCE = 0.6      # frames below this go to the human review list
 
