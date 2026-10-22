@@ -179,7 +179,7 @@ def process_model(model, predictions_dir=None, out_dir=None):
     out_dir = Path(out_dir or config.OUTPUTS_DIR / model)
     prediction_files = sorted(predictions_dir.glob("run_*.csv"))
     if not prediction_files:
-        raise FileNotFoundError(f"No predictions in {predictions_dir}. Run src/classify.py first.")
+        raise SystemExit(f"No predictions in {predictions_dir}. Run src/classify.py first.")
 
     segment_rows, metric_rows, review_rows = [], [], []
     for path in prediction_files:
