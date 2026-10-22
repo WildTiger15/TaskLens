@@ -26,3 +26,6 @@ Thumbs.db
 .vscode/
 .idea/
 ~$*.xlsx
+
+# Private project plan (kept locally)
+PLAN.md
