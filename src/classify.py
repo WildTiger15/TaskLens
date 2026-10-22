@@ -345,7 +345,11 @@ def main():
     args = parser.parse_args()
 
     if args.all:
+        config.FRAMES_DIR.mkdir(parents=True, exist_ok=True)
         frames_dirs = sorted(p for p in config.FRAMES_DIR.iterdir() if (p / "frames.csv").exists())
+        if not frames_dirs:
+            print("No frames yet. Run python src/frames.py --all first.")
+            return
     elif args.run:
         frames_dirs = [config.FRAMES_DIR / args.run]
     else:

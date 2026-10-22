@@ -93,7 +93,11 @@ def main():
     args = parser.parse_args()
 
     if args.all:
+        config.RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
         videos = sorted(p for p in config.RECORDINGS_DIR.iterdir() if p.suffix.lower() in VIDEO_EXTENSIONS)
+        if not videos:
+            print(f"No recordings yet. Put run_01.mp4, run_02.mp4, ... in {config.RECORDINGS_DIR}")
+            return
     elif args.video:
         videos = [Path(args.video)]
     else:
