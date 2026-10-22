@@ -6,6 +6,17 @@ from pathlib import Path
 MODEL = "claude-sonnet-5-5"
 CHEAP_MODEL = "claude-haiku-5-5"
 
+# US dollars per million tokens, used for cost per run. Base input and output prices
+# and the Sonnet cache read price are published list prices as of Oct 2026. The other
+# cache prices use the standard multipliers (read 0.1x input, write 1.25x input).
+# Check the current pricing page before quoting any cost.
+PRICES = {
+    "claude-sonnet-5-5": {"input_tokens": 2.00, "output_tokens": 10.00,
+                          "cache_read_input_tokens": 0.20, "cache_creation_input_tokens": 2.50},
+    "claude-haiku-5-5": {"input_tokens": 0.10, "output_tokens": 0.50,
+                         "cache_read_input_tokens": 0.01, "cache_creation_input_tokens": 0.125},
+}
+
 # Frame sampling
 FRAME_INTERVAL_S = 2      # take one frame every N seconds
 FRAME_WIDTH = 1024        # downscale frames to about this many pixels wide

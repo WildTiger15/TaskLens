@@ -272,6 +272,26 @@ def estimate_calls(model, frames_dirs):
     return calls
 
 
+def run_usage(model, frames_dir):
+    """Total tokens the cached answers for one recording used. None if any batch is not cached."""
+    totals = {}
+    previous_label = "none (this is the start of the recording)"
+    for batch in make_batches(read_frames(frames_dir)):
+        cached = load_cached(cache_key(batch, model, previous_label))
+        if cached is None:
+            return None
+        for name, value in cached.get("usage", {}).items():
+            totals[name] = totals.get(name, 0) + value
+        previous_label = cached["labels"][-1][1]
+    return totals
+
+
+def usage_cost(model, usage):
+    """Dollar cost of a usage dict, from the prices in config.PRICES."""
+    prices = config.PRICES[model]
+    return sum(usage.get(name, 0) * prices[name] / 1_000_000 for name in prices)
+
+
 def classify_runs(client, model, frames_dirs, workers=config.MAX_WORKERS):
     """Classify several recordings in parallel. Returns (output paths, stats)."""
     stats = new_stats()
