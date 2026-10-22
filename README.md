@@ -26,6 +26,7 @@ Step labels are fixed in [steps.json](steps.json): `open_invoice`, `read_fields`
 | 4. Segment and measure | `src/segment.py` | step segments, time study metrics, low confidence review list |
 | 5. Evaluate | `src/evaluate.py` | accuracy against hand labels, per model |
 | 6. Dashboard | `src/dashboard.py` | Excel workbook and Power BI ready CSVs |
+| 7. Manual vs AI assisted | `src/copilot_compare.py` | timing comparison with a bootstrap 95% interval |
 
 ## How to run
 
@@ -52,8 +53,11 @@ python src/segment.py
 python src/evaluate.py --check-labels
 python src/evaluate.py
 
-# 6. Dashboard
+# 6. Dashboard (Power BI steps in docs/powerbi_guide.md)
 python src/dashboard.py
+
+# 7. Manual vs AI assisted timing (protocol in docs/copilot_protocol.md)
+python src/copilot_compare.py
 
 # Tests
 python -m pytest
