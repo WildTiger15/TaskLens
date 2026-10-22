@@ -4,7 +4,7 @@ AI assisted time study from screen recordings.
 
 TaskLens takes screen recordings of a repeatable office task, uses a Claude vision model to split each recording into timed steps, checks that against hand labels, and turns the result into a time study: cycle, touch, wait and rework time per run, with Excel and Power BI dashboards.
 
-**Status: in progress.** The pipeline code and tests are in place. Recordings, hand labels and results are being collected, so there are no measured numbers yet. Results will be added here, each with its sample size (n), once they come from real runs.
+**Status: in progress.** The pipeline code, tests and write ups are in place. Recordings, hand labels and timings are being collected, so the results below are still placeholders. Each will be filled in with its sample size (n) from real runs.
 
 ## The task being studied
 
@@ -30,9 +30,11 @@ Step labels are fixed in [steps.json](steps.json): `open_invoice`, `read_fields`
 
 ## How to run
 
-Python 3.11 or newer.
+Python 3.11 or newer. Steps 3 and later need an Anthropic API key in the `ANTHROPIC_API_KEY` environment variable. Steps 1, 2 and the tests do not.
 
 ```bash
+git clone https://github.com/WildTiger15/TaskLens.git
+cd TaskLens
 pip install -r requirements.txt
 
 # 1. Dummy invoices and the form (open http://localhost:8000/form.html)
@@ -84,4 +86,31 @@ All invoices are generated with Faker from a fixed seed. Recordings show only th
 
 ## Results
 
-{Results table with n, added after real runs.}
+Numbers in curly braces are filled in from the files named in each row after real runs. Every number comes from running this code on the author's recordings.
+
+| Result | Value | n | Source |
+|---|---|---|---|
+| Step accuracy, Claude Sonnet 5.5 | {X}% of seconds | {n} recordings | outputs/evaluation_summary.md |
+| Step accuracy, Claude Haiku 5.5 | {X}% of seconds | {n} recordings | outputs/evaluation_summary.md |
+| Cycle time error (Sonnet) | {X} s ({X}%) | {n} recordings | outputs/evaluation_summary.md |
+| Cost per recording | {Sonnet} / {Haiku} | {n} recordings | outputs/evaluation_summary.md |
+| Mean cycle time | {X} s (SD {X} s) | {n} runs | dashboard, Variation sheet |
+| Bottleneck step | {step}, {X} s per run | {n} runs | dashboard, Steps sheet |
+| Frames flagged for review | {X} of {Y} | {n} recordings | outputs/claude-sonnet-5-5/review_list.csv |
+| Copilot vs manual task time | {difference} s (95% CI {low} to {high}) | {n} runs each | outputs/copilot_comparison.md |
+
+Dashboard: `outputs/tasklens_dashboard.xlsx` (Excel) and `outputs/powerbi/` (Power BI, see [docs/powerbi_guide.md](docs/powerbi_guide.md)).
+
+{Dashboard screenshot: save as docs/dashboard.png after real runs and show it here with `![Dashboard](docs/dashboard.png)`.}
+
+Write ups: [AI use case](docs/use_case.md), [enablement guide](docs/enablement_guide.md), [timing protocol](docs/copilot_protocol.md).
+
+## Limitations
+
+- **Small study.** One person, one task, {n} recordings. The results show the method works here; they do not show how well it works on other tasks or people.
+- **Same person recorded and labeled.** The hand labels are careful but not checked by a second labeler, so the ground truth has its own error.
+- **2 second sampling.** Steps shorter than about 2 seconds (a quick submit click) can be missed or cut short. Sampling every second would help, at twice the API cost.
+- **No fixed temperature.** The models used do not accept a custom temperature. Results are made repeatable by caching every answer on disk, not by the model itself.
+- **Costs are estimates.** Cost per recording uses real token counts but list prices from October 2026 (config.py); some cache prices use standard multipliers.
+- **Timing comparison.** Manual and Copilot runs were timed with a stopwatch by the same person. Practice effects are reduced by alternating conditions, not removed.
+- **Dummy task.** The invoices and form are simple and clean. Real documents and real systems are messier.
